@@ -1,9 +1,4 @@
 import copy
-<<<<<<< HEAD
-import datetime
-from queue import Empty
-=======
->>>>>>> 957526e2dcd7dda8ce151d1f3884c59902b2491f
 
 # J'ai importé copy à l'avance
 # Début du programme. C'est à partir d'ici qu'on écrira le code
@@ -78,33 +73,4 @@ sellSimulator("ruler", 35)
 
 lowProductList(10)
 
-<<<<<<< HEAD
-#Kevin Task: Une alerte sera remontée lorsque le stock d’un produit sera inférieur à 20
-#l'idee ici est de presenter a l'administrateur la liste des produits dont le stock est bas, lorsqu'il se connecte
-def alerteStock():
-    resultat = []
-    #recuperons les produits dont le stock est bas dans la liste
-    for produit in productCatalog:
-        if produit['quantity'] < 20:
-            resultat.append(produit)
-    #affichons ces produits s'il y'en a
-    if resultat != []:
-        print('Alerte! Ces produits ont atteint le stock critique')
-        print(resultat)
-
-#Kevin Task: Log Files
-#REF: https://waytolearnx.com/2020/06/date-et-heure-en-python.html
-#l'idee est de resortir la structure a mettre en place pour produire un log d'activite
-#le fichier de log dans le repertoire courant est nome log.txt
-#le log contient les informations suivantes
-# { la date, l'heure, l'action(du texte decrivant l'action effectuee),  }
-def addToLog(libele):
-    #on ouvre le fichier en mode d'ajout 
-    date = datetime.datetime.now()
-    print(date.strftime('%A'))
-
-#addToLog('')
-alerteStock()
-=======
 #print(productCatalog)
->>>>>>> 957526e2dcd7dda8ce151d1f3884c59902b2491f
