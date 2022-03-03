@@ -1,6 +1,7 @@
 import copy
 import datetime
 
+LOGFILE = 'market.log'
 # J'ai importé copy à l'avance
 # Début du programme. C'est à partir d'ici qu'on écrira le code
 
@@ -62,9 +63,9 @@ def addToLog(actor,libele):
     date = datetime.datetime.now()
     logContent = ''
     logContent += date.strftime('%A')+' '+ str(date.day) +'-'+str(date.month)+'-'+str(date.year) +' a '+str(date.hour)+':'+str(date.minute) +' '+actor +' '+libele
-    logFile = open('log.txt','a')
+    logFile = open(LOGFILE,'a')
     logFile.write(logContent +'\n')
     logFile.close()
 
 addToLog('Stephane','buy shoes for 5000frs')
-alerteStock()
+#alerteStock()
