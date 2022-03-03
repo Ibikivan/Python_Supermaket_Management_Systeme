@@ -24,7 +24,7 @@ clientsModel = {
 # puis on crée la liste catalogue et une liste vierge de clients
 #productCatalog = []
 #clientsList = []
-productCatalog = [{"id" : 1,"name" : "OchocoAuLait","quantity" : 10,"price" : 50},{"id" : 2,"name" : "ParleG","quantity" : 10,"price" : 50},{"id" : 3,"name" : "Naya","quantity" : 100,"price" : 50},{"id" : 4,"name" : "Marie","quantity" : 100,"price" : 50},{"id" : 5,"name" : "Cream","quantity" : 100,"price" : 50}]
+productCatalog = [{"id" : 1,"name" : "OchocoAuLaituiop","quantity" : 10,"price" : 50},{"id" : 2,"name" : "ParleG","quantity" : 10,"price" : 50},{"id" : 3,"name" : "Naya","quantity" : 100,"price" : 50},{"id" : 4,"name" : "Marie","quantity" : 100,"price" : 50},{"id" : 5,"name" : "Cream","quantity" : 100,"price" : 50}]
 clientsList = [{"id" : 1,"name" : "Patricia","totalExpenses" : 0.0,"fidelityPoints" : 0},{"id" : 2,"name" : "Yolande","totalExpenses" : 0.0,"fidelityPoints" : 0}]
 
 # Vous pouvez écrire vos fonctions à partir d'ici
@@ -33,9 +33,9 @@ clientsList = [{"id" : 1,"name" : "Patricia","totalExpenses" : 0.0,"fidelityPoin
 # Une ligne d'espace avant les commentaires et pas de ligne d'espace en dessous, entre le commentaire et le bloc de code associé
 
 def afficheListeProduits(liste :list):
-    print('Num\t|\t\tNom\t\t|\tQuantite\t|\tPrixU')
+    print('Num\t|\tNom\t      Quantite\t          PrixU')
     for produit in liste:
-        print(produit['id'],'\t|',produit['name'],'\t\t\t| \t',produit['quantity'],'\t\t|\t',produit['price'])
+        print(produit['id'],'\t|',produit['name'],' \t      ',produit['quantity'],'\t          ',produit['price'])
 
 #Kevin Task: Une alerte sera remontée lorsque le stock d’un produit sera inférieur à 20
 #l'idee ici est de presenter a l'administrateur la liste des produits dont le stock est bas, lorsqu'il se connecte
@@ -69,3 +69,4 @@ def addToLog(actor,libele):
 
 addToLog('Stephane','buy shoes for 5000frs')
 #alerteStock()
+afficheListeProduits(productCatalog)
