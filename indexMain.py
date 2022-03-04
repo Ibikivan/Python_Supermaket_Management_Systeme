@@ -96,13 +96,32 @@ def fouthChoice(proposal, choice1, choice2, choice3, choice4, invalidInputStatem
             print(invalidInputStatement)
 
 
+def inputTest(proposal):
+    while True:
+        try:
+            number = int(input("{} -> " . format(proposal)))
+            break
+        except:
+            print("Erreur !! - Veuillez entrer un nombre SVP!")
+    return number
+
+
 def afficheListeProduits(liste: list):
     print('Num\t|\tNom\t      Quantite\t          PrixU')
     for produit in liste:
         print(produit['id'], '\t|', produit['name'], ' \t      ', produit['quantity'], '\t          ', produit['price'])
 
 
-# Prochaines fonctions
+
+
+# Prochaines fonctions ROche
+
+
+# Kévin stp ajoute tes fonctions à intégrer à partir d'ici
+
+# ---- Ici -------
+
+# Prochaines fonctions Kévin
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Fin des fonction et debut de l'application >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -133,8 +152,7 @@ def roleSelectionMenu():
     else:
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Debut du code Kévin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-        print(
-            tripleChoice("Veuillez entrer un choix pour tester la fonction", "1", "2", "3", "saisie invalide de test"))
+        print("Kévin appelle ses fonctions ici")
 
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Fin du code de Kévin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -168,7 +186,13 @@ def buyingMenu():
     print("vous êtes sur le point de faire un achat !")
 
 
-# Prochaine fonction
+# Prochaine fonction interface Roche
+
+# Kévin stp ajoute tes fonctions d'interface à partir d'ici
+
+# ---- Ici -------
+
+# Prochaine fonction d'interface Kévin
 
 # fin des fonctions de menu et début du processus d'exécution de l'application
 
@@ -179,3 +203,5 @@ productCatalog = [{"id": 1, "name": "OchocoAuLait", "quantity": 10, "price": 50}
                   {"id": 5, "name": "Cream", "quantity": 100, "price": 50}]
 
 roleSelectionMenu()
+
+# print(inputTest("Veuillez fournir un nombre à vérifier svp !!"))
