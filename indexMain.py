@@ -1,4 +1,5 @@
 import copy
+import datetime
 
 # J'ai importé copy à l'avance
 # Début du programme. C'est à partir d'ici qu'on écrira le code
@@ -60,8 +61,25 @@ def role():
         else:
             print("Saisie invalide")
 
+#affiche une liste de produits passés en paramètre
+def afficheListeProduits(liste :list):
+    print('Num\t|\tNom\t      Quantite\t          PrixU')
+    for produit in liste:
+        print(produit['id'],'\t|',produit['name'],' \t      ',produit['quantity'],'\t          ',produit['price'])
 
-# Prochaines fonctions
+#Kevin Task: Une alerte sera remontée lorsque le stock d’un produit sera inférieur à 20
+#l'idee ici est de presenter a l'administrateur la liste des produits dont le stock est bas, lorsqu'il se connecte
+def alerteStock():
+    resultat = []
+    #recuperons les produits dont le stock est bas dans la liste
+    for produit in productCatalog:
+        if produit['quantity'] < 20:
+            resultat.append(produit)
+    #affichons ces produits s'il y'en a
+    if resultat != []:
+        print('Alerte! Ces produits ont atteint le stock critique')
+        afficheListeProduits(resultat)
+        input('Appuyez sur Entrer pour continuer: ')
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Fin des fonction et debut de l'application >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -85,7 +103,7 @@ if not role():
 else:
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Debut du code Kévin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-    print("Kévin écrit ici")
+    alerteStock()
     print(''' 
         Bienvenue sur la plateforme d'Administration.
         Entrez le nombre correspondant à l'action choisie.
@@ -94,5 +112,5 @@ else:
             3- Voir la liste des produits dont le stock est inferieur à 10
             4- Identifier les 3 mailleurs clients
             5- Tirer au sort le gagnant de la semaine    ''')
-
+        
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Fin du code de Kévin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
