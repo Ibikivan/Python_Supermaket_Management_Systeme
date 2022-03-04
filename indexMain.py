@@ -73,7 +73,7 @@ print("")
 print("")
 
 # Ici on commence à écrire en fonction du retour de la fonction role.
-# Par exemple je gère les clients donc dès que la role retourne false, j'écris mon code
+# Par exemple je gère les clients donc dès que le role retourne false, j'écris mon code
 if not role():
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Début du code de roche >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -87,7 +87,12 @@ else:
 
     print("Kévin écrit ici")
     print(''' 
-        Welcome to the Administration Wizard.
-        ''')
+        Bienvenue sur la plateforme d'Administration.
+        Entrez le nombre correspondant à l'action choisie.
+            1- Ajouter des produits au catalogue
+            2- Modifier le stock des produits présents
+            3- Voir la liste des produits dont le stock est inferieur à 10
+            4- Identifier les 3 mailleurs clients
+            5- Tirer au sort le gagnant de la semaine    ''')
 
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Fin du code de Kévin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
