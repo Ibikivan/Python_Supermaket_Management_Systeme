@@ -96,10 +96,10 @@ def fouthChoice(proposal, choice1, choice2, choice3, choice4, invalidInputStatem
             print(invalidInputStatement)
 
 
-def afficheListeProduits(liste :list):
+def afficheListeProduits(liste: list):
     print('Num\t|\tNom\t      Quantite\t          PrixU')
     for produit in liste:
-        print(produit['id'],'\t|',produit['name'],' \t      ',produit['quantity'],'\t          ',produit['price'])
+        print(produit['id'], '\t|', produit['name'], ' \t      ', produit['quantity'], '\t          ', produit['price'])
 
 
 # Prochaines fonctions
@@ -152,14 +152,14 @@ def clientsMenu():
     print("Veuillez choisir une action à effectuer !")
     clientSelect = tripleChoice("Faire un achat ? - Tapez '1'    |    Consulter votre solde de points ? - Tapez '2'  "
                                 "  |    Quitter ? - Tapez '0'", "1", "2", "0", "Veuillez faire un choix valide SVP"
-                                                                                   " !!")
+                                                                               " !!")
 
     # Après avoir appelé la fonction 'tripleChoice pour permettre à l'utilisateur de faire un choix, j'utilise le
     # retour de cette fonction pour afficher le prochain menu choisit par l'utilisateur
     if clientSelect == 1:
         buyingMenu()
     elif clientSelect == 2:
-        print("poinysMenu()")
+        print("pointsMenu()")
     elif clientSelect == 0:
         roleSelectionMenu()
 
@@ -172,6 +172,10 @@ def buyingMenu():
 
 # fin des fonctions de menu et début du processus d'exécution de l'application
 
-productCatalog = [{"id" : 1,"name" : "OchocoAuLait","quantity" : 10,"price" : 50},{"id" : 2,"name" : "ParleG","quantity" : 10,"price" : 50},{"id" : 3,"name" : "Naya","quantity" : 100,"price" : 50},{"id" : 4,"name" : "Marie","quantity" : 100,"price" : 50},{"id" : 5,"name" : "Cream","quantity" : 100,"price" : 50}]
+productCatalog = [{"id": 1, "name": "OchocoAuLait", "quantity": 10, "price": 50},
+                  {"id": 2, "name": "ParleG", "quantity": 10, "price": 50},
+                  {"id": 3, "name": "Naya", "quantity": 100, "price": 50},
+                  {"id": 4, "name": "Marie", "quantity": 100, "price": 50},
+                  {"id": 5, "name": "Cream", "quantity": 100, "price": 50}]
 
 roleSelectionMenu()
