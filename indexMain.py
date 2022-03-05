@@ -1,6 +1,7 @@
 import copy
 import datetime
 import csv
+import random
 
 # J'ai importé copy à l'avance
 # Début du programme. C'est à partir d'ici qu'on écrira le code
@@ -18,13 +19,13 @@ clientsModel = {
     "id": 0,
     "name": "",
     "totalExpenses": 0.0,
-    "fidelityPoints": 0
+    "fidelityPoints": 0,
+    'gains': 0,
+    "bonAchat": 0
 }
 
 # puis on crée la liste catalogue et une liste vierge de clients
 productCatalog = []
-clientsList = []
-
 
 # Vous pouvez écrire vos fonctions à partir d'ici Merci d'écrire de façon propre et de commenter vos codes Une ligne
 # d'espace entre les blocs de code et deux entre les grands blocs de code Une ligne d'espace avant les commentaires
@@ -174,6 +175,77 @@ def getProductName(prompt):
         if i:
             return productCatalog[int(i)]['name']
 
+#fonction pour identifier le gagnant de la semaine
+#une fonction qui trie les clients par ordre décroissant des dépenses
+def sortByExpense(client):
+    return client.get('totalExpenses')
+
+#fonction qui trie les clients
+def sortByPoint(client):
+    return client.get('fidelityPoints')
+
+def getClientsList():
+    #on lit le csv qui a la liste des client et leurs informations puis on ajoute au tableau
+    with open('clients.csv') as csvFile:
+        csvReader = csv.reader(csvFile, delimiter=',')  
+        lineCount = 0  
+        clientsList = []
+        for row in csvReader:
+            if lineCount == 0:
+                #print(f'Column names are: {", ".join(row)}')  
+                lineCount += 1  
+            else:  
+                #print(f'id: {row[0]} name: {row[1]}, totalExpenses: {row[2]}, fidelityPoints: {row[3]}')  
+                currentClient = copy.deepcopy(clientsModel)  
+                currentClient["id"] = int(row[0])  
+                currentClient["name"] = row[1]  
+                currentClient["totalExpenses"] = float(row[2])  
+                currentClient["fidelityPoints"] = int(row[3])   
+                currentClient["gains"] = int(row[4])   
+                currentClient["bonAchat"] = int(row[5])   
+                clientsList.append(currentClient)  
+                lineCount += 1  
+        #print(f'Processed {lineCount} lines.')
+        return clientsList
+
+clientsList = getClientsList()
+
+def bestClients(num):      
+    #on utilise la fonction qui va trier les clients par ordre de dépenses
+    clientsList.sort(key=sortByExpense, reverse=True)
+    clientOrder = clientsList[:num]
+    return clientOrder
+
+'''    #on liste les 10 meilleurs clients
+    print(f'Voici les 10 meilleurs sur le total de {lineCount-1} clients')
+    for client in clientOrder:
+        print (f'Nom : {client["name"]}, Total des dépenses : {client["totalExpenses"]}, Solde Points de fidélité : {client["fidelityPoints"]}')
+'''
+
+def findWinner():
+    resultat = []
+    #le vainqueur est choisi aléatoirement parmi les 10
+    winner = random.choice(bestClients(10))
+    winner['bonAchat'] = 10000
+    resultat.append(winner)
+    #on reinitialise la valeur des depenses totales de tous les clients
+    return resultat
+
+def afficheListeClients(liste: list):
+    print('Num\t|\t\tNom\t\t                Depenses Totales\t          Valeur Bon D\'achat')
+    for client in liste:
+        print(client['id'], '\t|', client['name'], ' \t\t\t                ', client['totalExpenses'], '\t\t          ', client['bonAchat'])
+
+'''    print("le gagnat du bon d'achat de 10 000F est...")
+    print("Loading...")
+    print("{} !".format(winner["name"]))
+
+    #identifier les 3 clients qui ont le plus de points de fidelité
+    clientOrder.sort(key=sortByPoint, reverse=True)
+    print(f'Voici les 03 meilleurs sur le total de {lineCount-1} clients')
+    for client in clientOrder[:3]:
+        print (f'Nom : {client["name"]}, Total des dépenses : {client["totalExpenses"]}, Solde Points de fidélité : {client["fidelityPoints"]}')
+'''
 # Prochaines fonctions ROche
 
 
@@ -189,9 +261,9 @@ def alerteStock():
             resultat.append(produit)
     #affichons ces produits s'il y'en a
     if resultat != []:
-        print('\n\n Alerte! Ces produits ont atteint le stock critique')
+        print('\n Alerte! Ces produits ont atteint le stock critique: \n')
         afficheListeProduits(resultat)
-        print('\n\n')
+        print('\n')
         input('Appuyez sur Entrer pour continuer: ')
 
 # Prochaines fonctions Kévin
@@ -342,9 +414,18 @@ def adminMenu():
             if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
                 break
         elif action == 4:
-            pass
+            print('\nles 3 meilleurs clients sur',len(clientsList),'sont:')
+            afficheListeClients(bestClients(3))
+            if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
+                break
         elif action == 5:
-            pass
+            print("Le gagnat du bon d'achat de 10 000F est...")
+            print("Loading...")
+            input('... Pressez Entrer pour le découvrir...\n')
+            afficheListeClients(findWinner())
+            #print(findWinner())
+            if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
+                break
     print(productCatalog)
 
 # Prochaine fonction d'interface Kévin
