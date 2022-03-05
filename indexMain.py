@@ -45,7 +45,7 @@ def productAdd(name,quantity,price):
     newProductList["name"]=name
     newProductList["quantity"]=quantity
     newProductList["price"]=price
-    productCatalog.append(newProductList)
+    #productCatalog.append(newProductList)
 
     #add the values to a list and write in csv file
     exist=checkIfExistInCsv(name)
@@ -130,8 +130,8 @@ def productReadCsv():
     lines=manageCsvFile()
     for row in lines:
         name=row[1]
-        quantity=row[2]
-        price=row[3]
+        quantity=int(row[2])
+        price=float(row[3])
         if not name=="name":
             newProductList=copy.deepcopy(productsModel)
             newProductList["name"]=name
