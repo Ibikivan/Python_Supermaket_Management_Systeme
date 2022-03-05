@@ -32,7 +32,9 @@ clientsList = []
 # Une ligne d'espace entre les blocs de code et deux entre les grands blocs de code
 # Une ligne d'espace avant les commentaires et pas de ligne d'espace en dessous, entre le commentaire et le bloc de code associé
 
-# The CRUD on products
+# The CRUD on products 
+
+#managecsvfile nous retour une liste contenant les elements du fichier csv
 def manageCsvFile():
     r = csv.reader(open('listeDeProduits.csv')) # Here your csv file
     lines = list(r)
@@ -61,7 +63,7 @@ def productUpdateQuantity(name,quantity):
     if exist:
         products=productCatalog[int(exist)]
         products['quantity']=quantity
-   #update the values in csv file but check first if the product by name exist
+#update the values in csv file but check first if the product by name exist
     exist=checkIfExistInCsv(name)
     if exist :
         lines=manageCsvFile()
@@ -98,9 +100,7 @@ def checkProduct(name):
         if name.casefold()==products['name'].casefold():
             exist=True
             return str(i)
-            #products.clear()
-       # else:
-          #  return "This product doesnot exist"
+    #increment to check the next column
         i+=1
     
     if not exist:
@@ -118,6 +118,7 @@ def checkIfExistInCsv(name):
         if name.casefold() in column:  
             exist=True
             return str(i)
+ #increment to check the next column
         i=i+1
     if not exist:
         print("This product doesnot exist")
@@ -125,7 +126,6 @@ def checkIfExistInCsv(name):
 
 
 #checkIfExistInCsv('banana')
-
 #apple=productAdd('Apple',25,200)
 #banana=productAdd('banana',22,100)
 bonbon=productAdd('bonbon',30,100)
