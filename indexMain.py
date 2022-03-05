@@ -16,7 +16,8 @@ clientsModel = {
     "id": 0,
     "name": "",
     "totalExpenses": 0.0,
-    "fidelityPoints": 0
+    "fidelityPoints": 0,
+    "gains": 0.0
 }
 
 # puis on crée la liste catalogue et une liste vierge de clients
@@ -96,25 +97,143 @@ def fouthChoice(proposal, choice1, choice2, choice3, choice4, invalidInputStatem
             print(invalidInputStatement)
 
 
-def inputTest(proposal):
+# Cette fonction demande une saisie de nombre entier et le retourne si la saisie ne déclenche aucune exception
+def intInputTest(proposal):
     while True:
         try:
-            number = int(input("{} -> " . format(proposal)))
+            number = int(input("{} -> ".format(proposal)))
             break
         except:
             print("Erreur !! - Veuillez entrer un nombre SVP!")
     return number
 
 
+# Cette fonction demande une saisie de nombre flottant et le retourne si la saisie ne déclenche aucune exception
+def floatInputTest(proposal):
+    while True:
+        try:
+            number = float(input("{} -> ".format(proposal)))
+            break
+        except:
+            print("Erreur !! - Veuillez entrer un nombre SVP!")
+    return number
+
+
+# Fonction de Kévin pour afficher la liste des produits du catalogue non csv
 def afficheListeProduits(liste: list):
     print('Num\t|\tNom\t      Quantite\t          PrixU')
     for produit in liste:
         print(produit['id'], '\t|', produit['name'], ' \t      ', produit['quantity'], '\t          ', produit['price'])
 
 
+# Les 3 prochaines fonctions sont réalisée par natacha pour permettre à un client d'effectuer un achat
+# Fonction qui effectue l'achat proprement dit et de soustraire la quantité achetée au catalogue et retourne le prix tle
+def buyProduct(produitChoice, quantity):
+    for produit in productCatalog:
+        if produitChoice == produit["name"]:
+            total = quantity * produit["price"]
+            produit["quantity"] -= quantity
+            print("achat confirmé de {} {} à un prix total de {}".format(quantity, produitChoice, total))
+            return total
 
 
-# Prochaines fonctions ROche
+# Cette fonction calcule total de points d'un client en fonction de ses achats et les lui attribue
+def pointsCount(name):
+    for client in clientsList:
+        if client["name"] == name:
+            points = int(client["totalExpenses"] / 100)
+    return points
+
+
+# Cette fonction réalise invite le client à réaliser l'achat et exécute toute la procédure
+def currentBuy(name):
+    totalAchat = 0
+    print("liste les produits:")
+    afficheListeProduits(productCatalog)
+    print("")
+    print("Bonjour vous êtes sur le point de faire un achat :")
+
+    while True:
+        # On récupère les valeurs à envoyer en paramètre à la fonction d'achat
+        choice = input("veuillez indiquer le produit souhaité: -> ")
+        quantity = intInputTest("combien voulez-vous de {}: -> ".format(choice))  # on vérifie le type de la qté
+
+        print("")
+        prix = buyProduct(choice, quantity)  # on appelle la fonction d'achat et on récupère le montant total des achats
+        if prix:  # penser à vérifier les quantités en stock avant l'achat
+            print("")
+        else:
+            print("désolé vous entré un produit qui n'existe pas !")
+            prix = 0
+
+        totalAchat += prix
+        continuer = userTotalInterrogation("Acheter autre chose ? - Tapez Entrer    |    Tapez 'non' pour Arrêter",
+                                           "non", "Veuillez entrer un choix valide SVP !")
+        if not continuer:
+            print("vos dépenses totales s'élèvent à : {}".format(totalAchat))
+
+            # Puis on ajoute le montant total des achats au client
+            for client in clientsList:
+                if client["name"] == name:
+                    client["totalExpenses"] += totalAchat
+
+            # Et on ajoute le nombre de points total dû à ces achats client
+            for client in clientsList:
+                if client["name"] == name:
+                    client["fidelityPoints"] = pointsCount(name)
+            break
+
+
+# Cette fonction va vérifier l'existence d'un utilisateur et retourner True s'il existe
+def isHeExist(name):
+    for client in clientsList:
+        if client["name"] == name:
+            return True
+
+    return False
+
+
+def clientIdentification(idPurpose):
+    print("{}, veuillez vous identifier svp !!".format(idPurpose))
+    name = input("Quel est votre nom ? - > ")
+    addClient(name)
+    return name
+
+
+# Cette fonction va vérifier l'existence d'un client et l'ajouter s'il n'existe pas
+def addClient(name):
+    if not isHeExist(name):
+        currentClient = copy.deepcopy(clientsModel)
+        currentClient["id"] = currentClient["id"] = len(clientsList) + 1
+        currentClient["name"] = name
+        clientsList.append(currentClient)
+        print("client ajouté à la liste")
+        return True
+    else:
+        print("ce lient existe déjà")
+
+
+# Maintenant je crée ma fonction qui va m'indiquer les produit achetables avec mes points
+# pour commencer je crée une fonction qui va calculer l'équivalence des points en argent
+def howMuchItWorth(points):
+    # Ici une fonction va être appelée pour récupérer les dépenses du client et calculer ses points et son résultat
+    # retourné dans une variable Pas de paramètres nécessaires dans la version définitive de cette fonction
+    pointsValue = points * 100
+    return pointsValue
+
+
+def couldIBuyList():
+    montant = howMuchItWorth(10)
+    cheap = 1
+    print("voici les produits que vous pouvez acheter actuellement avec vos points :")
+    for product in productCatalog:
+        if product["price"] <= montant:
+            print("{}. {} -> prix: {}; quantité restante: {}".format(cheap, product["name"], product["price"],
+                                                                     product["quantity"]))
+            cheap += 1
+
+
+# Prochaines fonctions Roche
 
 
 # Kévin stp ajoute tes fonctions à intégrer à partir d'ici
@@ -177,13 +296,34 @@ def clientsMenu():
     if clientSelect == 1:
         buyingMenu()
     elif clientSelect == 2:
-        print("pointsMenu()")
+        promotionalMenu()
     elif clientSelect == 0:
         roleSelectionMenu()
 
 
 def buyingMenu():
-    print("vous êtes sur le point de faire un achat !")
+    name = clientIdentification("vous êtes sur le point de faire un achat")
+
+    while True:
+        currentBuy(name)
+
+        relay = userTotalInterrogation("Tapez Entrer pour revenir au MENU CLIENTS    |    Tapez '1' pour acheter "
+                                       "de nouveau", "1", "Erreur de saisie, veuillez recommencer !")
+        if relay:
+            clientsMenu()
+            break
+
+
+def promotionalMenu():
+    # le client devra déjà être dans la liste des clients
+    print("Je demande au client de s'identifier")
+    name = clientIdentification("Nous allons consulter votre solde de points")
+
+    print("j'affiche la liste des produits achetables avec le nombre de points de ce client")
+
+    print("je met en forme et j'affiche le nombre de points du client")
+
+    print("ici j'affiche les propositions Acheter avec ses points ou retourner au menu")
 
 
 # Prochaine fonction interface Roche
@@ -202,6 +342,20 @@ productCatalog = [{"id": 1, "name": "OchocoAuLait", "quantity": 10, "price": 50}
                   {"id": 4, "name": "Marie", "quantity": 100, "price": 50},
                   {"id": 5, "name": "Cream", "quantity": 100, "price": 50}]
 
-roleSelectionMenu()
+clientsList = [
+    {"id": 1, "name": "nat", "totalExpenses": 0, "fidelityPoints": 0, "gains": 0.0}
+]
+
+#addClient("roche")
+
+# roleSelectionMenu()
+
+addClient("roche")
+addClient("Audrey")
+addClient("Audrey")
+
+#print(isHeExist("audrey"))
+
+print(clientsList)
 
 # print(inputTest("Veuillez fournir un nombre à vérifier svp !!"))
