@@ -1,10 +1,6 @@
-from ast import Return
 import copy
 import datetime
 import csv
-from imghdr import what
-from queue import Empty
-from unicodedata import name
 
 # J'ai importé copy à l'avance
 # Début du programme. C'est à partir d'ici qu'on écrira le code
