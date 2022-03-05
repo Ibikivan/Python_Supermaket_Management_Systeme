@@ -58,6 +58,7 @@ def productAdd(name,quantity,price):
     
     return newProductList
 
+#quantity=restOfQuantity
 def productUpdateQuantity(name,quantity):
     exist=checkProduct(name)
     if exist:
@@ -124,17 +125,32 @@ def checkIfExistInCsv(name):
         print("This product doesnot exist")
         return exist
 
-
+def productReadCsv():
+    newProductList=copy.deepcopy(productsModel)
+    lines=manageCsvFile()
+    for row in lines:
+        name=row[1]
+        quantity=row[2]
+        price=row[3]
+        if not name=="name":
+            newProductList=copy.deepcopy(productsModel)
+            newProductList["name"]=name
+            newProductList["quantity"]=quantity
+            newProductList["price"]=price
+            productCatalog.append(newProductList)
+    return newProductList
 #checkIfExistInCsv('banana')
 #apple=productAdd('Apple',25,200)
 #banana=productAdd('banana',22,100)
-bonbon=productAdd('bonbon',30,100)
+#bonbon=productAdd('bonbon',30,100)
 
 #print(apple)
 #applelist=apple.values()
 #print(applelist)
 #productDel('apple')
-productUpdateQuantity('bol',100)
-productUpdatePrice('banana',600)
-print(productCatalog)
+#productUpdateQuantity('bol',100)
+#productUpdatePrice('banana',600)
+#print(productCatalog)
 #print(manageCsvFile)
+hey=productReadCsv()
+print(productCatalog)
