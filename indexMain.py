@@ -15,6 +15,7 @@ productsModel = {
     "quantity" : 0,
     "price" : 0
 }
+
 clientsModel = {
     "id" : 0,
     "name" : "",
@@ -30,11 +31,12 @@ clientsList = []
 # Merci d'écrire de façon propre et de commenter vos codes
 # Une ligne d'espace entre les blocs de code et deux entre les grands blocs de code
 # Une ligne d'espace avant les commentaires et pas de ligne d'espace en dessous, entre le commentaire et le bloc de code associé
+
+# The CRUD on products
 def manageCsvFile():
     r = csv.reader(open('listeDeProduits.csv')) # Here your csv file
     lines = list(r)
-    print(lines)
-    return csv.writer(open('listeDeProduits.csv', 'w', newline=''))
+    return lines
 
 def productAdd(name,quantity,price):
     newProductList=copy.deepcopy(productsModel)
@@ -42,8 +44,16 @@ def productAdd(name,quantity,price):
     newProductList["quantity"]=quantity
     newProductList["price"]=price
     productCatalog.append(newProductList)
-    #writer = manageCsvFile()
-    #writer.writerows(newProductList.values())
+
+    #add the values to a list and write in csv file
+    exist=checkIfExistInCsv(name)
+    if not exist :
+        fieldname = [newProductList["id"] , name , quantity , price]
+        lines=manageCsvFile()
+        writer = csv.writer(open('listeDeProduits.csv', 'w', newline=''))
+        writer.writerows(lines)
+        writer.writerow(fieldname)
+    
     return newProductList
 
 def productUpdateQuantity(name,quantity):
@@ -51,12 +61,29 @@ def productUpdateQuantity(name,quantity):
     if exist:
         products=productCatalog[int(exist)]
         products['quantity']=quantity
+   #update the values in csv file but check first if the product by name exist
+    exist=checkIfExistInCsv(name)
+    if exist :
+        lines=manageCsvFile()
+        lines[int(exist)][2]= quantity
+        # print(lines)
+        writer = csv.writer(open('listeDeProduits.csv', 'w', newline=''))
+        writer.writerows(lines)
 
 def productUpdatePrice(name,price):
     exist=checkProduct(name)
     if exist:
         products=productCatalog[int(exist)]
         products['price']=price
+#pour modifier dans le fichier csv
+#update the values in csv file but check first if the product by name exist
+    exist=checkIfExistInCsv(name)
+    if exist :
+        lines=manageCsvFile()
+        lines[int(exist)][3]= price
+        # print(lines)
+        writer = csv.writer(open('listeDeProduits.csv', 'w', newline=''))
+        writer.writerows(lines)
 
     
 def productDel(name):
@@ -80,15 +107,34 @@ def checkProduct(name):
         print("This product doesnot exist")
         return exist
 
+def checkIfExistInCsv(name):
+    exist=False
+    r = csv.reader(open('listeDeProduits.csv')) # Here your csv file
+    lines = list(r)
+  #  print(lines)
+    i=0
+    for column in lines:
+    # print(column)
+        if name.casefold() in column:  
+            exist=True
+            return str(i)
+        i=i+1
+    if not exist:
+        print("This product doesnot exist")
+        return exist
 
 
-apple=productAdd("Apple",25,200)
-banana=productAdd("banana",22,100)
+#checkIfExistInCsv('banana')
+
+#apple=productAdd('Apple',25,200)
+#banana=productAdd('banana',22,100)
+bonbon=productAdd('bonbon',30,100)
+
 #print(apple)
 #applelist=apple.values()
 #print(applelist)
-productDel('apple')
-productUpdateQuantity('banana',60)
-productUpdatePrice('banana',200)
+#productDel('apple')
+productUpdateQuantity('bol',100)
+productUpdatePrice('banana',600)
 print(productCatalog)
 #print(manageCsvFile)
