@@ -3,6 +3,7 @@ import datetime
 import csv
 import random
 
+LOGFILE = 'marketLog.log'
 # J'ai importé copy à l'avance
 # Début du programme. C'est à partir d'ici qu'on écrira le code
 
@@ -117,9 +118,33 @@ def lowProductList(limit):
     return resultat
 
 def afficheListeProduits(liste: list):
+    '''
     print('Num\t|\tNom\t      Quantite\t          PrixU')
     for produit in liste:
         print(produit['id'], '\t|', produit['name'], ' \t      ', produit['quantity'], '\t          ', produit['price'])
+    '''
+    print('Num\t|\tNom\t\t\t      \tQuantite\t           Prix Unitaire')
+    for produit in liste:
+        print(produit['id'], '\t|', produit['name'], ' \t\t\t\t', produit['quantity'], '\t\t            ', produit['price'])
+
+def addToLog(actor,libele):
+    #on ouvre le fichier en mode d'ajout 
+    date = datetime.datetime.now()
+    logContent = ''
+    logContent += date.strftime('%A')+' '+ str(date.day) +'-'+str(date.month)+'-'+str(date.year) +' a '+str(date.hour)+':'+str(date.minute) +' '+actor +' '+libele
+    logFile = open(LOGFILE,'a')
+    logFile.write(logContent +'\n')
+    logFile.close()
+
+def verifyAdmin():
+    while True:
+        test = input('Entrez Votre mot de passe ou 0 pour le menu précédent: ')
+        if test == 'Bonjour':
+            return True
+        elif test == '0':
+            return False
+        else:
+            print('Mot de passe incorrect!')
 
 def manageCsvFile():
     r = csv.reader(open('listeDeProduits.csv')) # Here your csv file
@@ -140,6 +165,7 @@ def productUpdateQuantity(name,quantity):
     exist=checkProduct(name)
     if exist:
         products=productCatalog[int(exist)]
+        addToLog('Admin','a fait passe la quantite de '+str(name)+' de '+str(products['quantity'])+' à '+str(products['quantity'] + quantity))
         products['quantity']=products['quantity'] + quantity
         return products
 
@@ -147,6 +173,7 @@ def productUpdatePrice(name ,price):
     exist=checkProduct(name)
     if exist:
         products=productCatalog[int(exist)]
+        addToLog('Admin','a fait passé le prix de '+str(name)+' de '+str(products['price'])+' à '+str(products['price'] + price))
         products['price']=price
         return products
     
@@ -163,9 +190,9 @@ def checkProduct(name: str):
             exist=True
             return str(i)
         i+=1
-    
+
     if not exist:
-        print("This product doesnot exist")
+        #print("This product doesnot exist")
         return exist
 
 def getProductName(prompt):
@@ -174,6 +201,18 @@ def getProductName(prompt):
         i = checkProduct(name)
         if i:
             return productCatalog[int(i)]['name']
+        else:
+            print('Ce produit n\'existe pas.')
+
+def testProductName(prompt):
+    while True:
+        name = input(prompt)
+        i = checkProduct(name)
+        if not i:
+            return name
+        else:
+            print('Ce produit existe déjà vous ne pouvez plus l\'ajouter')
+
 
 #fonction pour identifier le gagnant de la semaine
 #une fonction qui trie les clients par ordre décroissant des dépenses
@@ -263,8 +302,7 @@ def alerteStock():
     if resultat != []:
         print('\n Alerte! Ces produits ont atteint le stock critique: \n')
         afficheListeProduits(resultat)
-        print('\n')
-        input('Appuyez sur Entrer pour continuer: ')
+        input('\nAppuyez sur Entrer pour continuer: ')
 
 # Prochaines fonctions Kévin
 
@@ -297,7 +335,11 @@ def roleSelectionMenu():
     else:
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Debut du code Kévin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-        adminMenu()
+        if verifyAdmin():
+            adminMenu()
+            return True
+        else:
+            return False
 
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Fin du code de Kévin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -348,8 +390,9 @@ def displayAdminMenu():
     return inputTest('Faites votre choix: ')
 
 def adminMenu():
-    selectedMenu = 0
+
     alerteStock()
+
     print('\n\tBienvenue sur la plateforme d\'Administration.')
     while True:
         action = displayAdminMenu()        
@@ -360,12 +403,13 @@ def adminMenu():
             while True:
                 i += 1
                 produit = ['']
-                name = input('Definir le nom du produit: ')
+                name = testProductName('Definir le nom du produit: ')
                 qtity = inputTest('Definir la quantité: ')
                 price = inputTest('Definir le prix: ')
                 print('\nProduit ajoute avec succes')
                 produit[0] = productAdd(name,qtity,price)
                 afficheListeProduits(produit)
+                addToLog('Admin','a ajoute le produit '+str(produit))
                 if not input('Entrez 1 pour ajouter un autre produit ou Autre chose pour sortir: ') == '1':
                     break
             print('\n',i,'Produit(s) Ajoute(s) au catalogue.')
@@ -408,25 +452,30 @@ def adminMenu():
                 else:
                     print('le stock de ces produits est inferieur à ',limit,':')
                     afficheListeProduits(liste)
+                    addToLog('Admin','a consulte la liste des produits dont le stock est inferieur a '+str(limit))
                 if not input('Entrez 1 pour effectuer un autre contrôle ou Autre chose pour sortir: ') == '1':
                     break
             print('\n','Control de stock Terminé.')
             if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
                 break
         elif action == 4:
-            print('\nles 3 meilleurs clients sur',len(clientsList),'sont:')
+            taille = len(clientsList)
+            print('\nles 3 meilleurs clients sur',taille,'sont:')
             afficheListeClients(bestClients(3))
+            addToLog('Admin','a consulte la liste des 3 meilleurs clients sur '+str(taille))
             if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
                 break
         elif action == 5:
+            gagnant = findWinner()
             print("Le gagnat du bon d'achat de 10 000F est...")
             print("Loading...")
             input('... Pressez Entrer pour le découvrir...\n')
-            afficheListeClients(findWinner())
-            #print(findWinner())
+            afficheListeClients(gagnant)
+            addToLog('Admin','a tire au sort le gagnant de la semaine: '+str(gagnant))
             if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
                 break
-    print(productCatalog)
+    # afficheListeProduits(productCatalog)
+    print('\n\n Aurevoir!!! \n\n')
 
 # Prochaine fonction d'interface Kévin
 
@@ -438,4 +487,6 @@ productCatalog = [{"id": 1, "name": "OchocoAuLait", "quantity": 10, "price": 50}
                   {"id": 4, "name": "Marie", "quantity": 100, "price": 50},
                   {"id": 5, "name": "Cream", "quantity": 100, "price": 50}]
 
-roleSelectionMenu()
+while True:
+    if roleSelectionMenu():
+        break
