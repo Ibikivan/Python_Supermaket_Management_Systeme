@@ -99,6 +99,7 @@ def fouthChoice(proposal, choice1, choice2, choice3, choice4, invalidInputStatem
         else:
             print(invalidInputStatement)
 
+
 # Fonction pour recuperer un nombre saisi par l'utilisateur 
 def inputTest(proposal):
     while True:
@@ -109,6 +110,7 @@ def inputTest(proposal):
             print("Erreur !! - Veuillez entrer un nombre SVP!")
     return number
 
+
 #fonction qui retourne la liste des produits dont le stock est inferieur à la limite indiquée
 def lowProductList(limit):
     resultat = []
@@ -117,15 +119,12 @@ def lowProductList(limit):
             resultat.append(product)
     return resultat
 
+
 def afficheListeProduits(liste: list):
-    '''
-    print('Num\t|\tNom\t      Quantite\t          PrixU')
-    for produit in liste:
-        print(produit['id'], '\t|', produit['name'], ' \t      ', produit['quantity'], '\t          ', produit['price'])
-    '''
     print('Num\t|\tNom\t\t\t      \tQuantite\t           Prix Unitaire')
     for produit in liste:
         print(produit['id'], '\t|', produit['name'], ' \t\t\t\t', produit['quantity'], '\t\t            ', produit['price'])
+
 
 def addToLog(actor,libele):
     #on ouvre le fichier en mode d'ajout 
@@ -135,6 +134,7 @@ def addToLog(actor,libele):
     logFile = open(LOGFILE,'a')
     logFile.write(logContent +'\n')
     logFile.close()
+
 
 def verifyAdmin():
     while True:
@@ -146,18 +146,20 @@ def verifyAdmin():
         else:
             print('Mot de passe incorrect!')
 
+
 def manageCsvFile():
     r = csv.reader(open('listeDeProduits.csv')) # Here your csv file
     lines = list(r)
-    #print(lines)
-    #return csv.writer(open('listeDeProduits.csv', 'w', newline=''))
     return lines
+
 
 def productReadCsv():
     resultat = []
     newProductList=copy.deepcopy(productsModel)
     lines=manageCsvFile()
     for row in lines:
+        if row == '':
+            continue
         name=row[1]
         if not name=="name":
             id = int(row[0])
@@ -171,6 +173,7 @@ def productReadCsv():
             resultat.append(newProductList)
     return resultat
 
+
 def productAdd(name,quantity,price):
     newProductList=copy.deepcopy(productsModel)
     newProductList["name"]=name
@@ -178,12 +181,20 @@ def productAdd(name,quantity,price):
     newProductList["price"]=price
     newProductList["id"]=len(productCatalog)
     productCatalog.append(newProductList)
+    updateCSvFile('listeDeProduits.csv',['id','name','quantity','price'],productCatalog)
     return newProductList
 
-def productDel(name):
-    exist=checkProduct(name)
-    if exist :
-        del productCatalog[int(exist)]
+#met a jour un fichier csv à partir des parametres
+ #name correspond au nom du fichier csv a modifier
+ #head correspond a la premiere ligne du fichier csv, la ligne des entêtes
+ #content est un tableau d'objets correspondant au contenu du fichier
+ #exemple d'utilisation   updateCSvFile('listeDeProduits.csv',['id','name','quantity','price'],productCatalog)
+def updateCSvFile(name: str,head: list,content: list):
+    entete = head
+    writer = csv.DictWriter(open(name, 'w', newline=''), fieldnames=entete)
+    writer.writeheader()
+    writer.writerows(content)
+
 
 def productUpdateQuantity(name,quantity):
     exist=checkProduct(name)
@@ -191,11 +202,9 @@ def productUpdateQuantity(name,quantity):
         products=productCatalog[int(exist)]
         addToLog('Admin','a fait passe la quantite de '+str(name)+' de '+str(products['quantity'])+' à '+str(products['quantity'] + quantity))
         products['quantity']=products['quantity'] + quantity
-        entete = ['id','name','quantity','price']
-        writer = csv.DictWriter(open('listeDeProduits.csv', 'w', newline=''), fieldnames=entete)
-        writer.writeheader()
-        writer.writerows(productCatalog)
+        updateCSvFile('listeDeProduits.csv',['id','name','quantity','price'],productCatalog)
         return products
+
 
 def productUpdatePrice(name ,price):
     exist=checkProduct(name)
@@ -203,38 +212,16 @@ def productUpdatePrice(name ,price):
         products=productCatalog[int(exist)]
         addToLog('Admin','a fait passé le prix de '+str(name)+' de '+str(products['price'])+' à '+str(products['price'] + price))
         products['price']=price
-        #writer = csv.writer(open('listeDeProduits.csv', 'w', newline=''))
-        #writer.writerows(productCatalog)
-        entete = ['id','name','quantity','price']
-        writer = csv.DictWriter(open('listeDeProduits.csv', 'w', newline=''), fieldnames=entete)
-        writer.writeheader()
-        writer.writerows(productCatalog)
-
+        updateCSvFile('listeDeProduits.csv',['id','name','quantity','price'],productCatalog)
         return products
-'''
-def productUpdatePrice(name,price):
-    exist=checkProduct(name)
-    if exist:
-        products=productCatalog[int(exist)]
-        products['price']=price
-#pour modifier dans le fichier csv
-#update the values in csv file but check first if the product by name exist
-    exist=checkIfExistInCsv(name)
-    if exist :
-        lines=manageCsvFile()
-        lines[int(exist)][3]= price
-        # print(lines)
-        writer = csv.writer(open('listeDeProduits.csv', 'w', newline=''))
-        writer.writerows(lines) 
-'''   
+
+
 def productDel(name):
     exist=checkProduct(name)
     if exist :
         del productCatalog[int(exist)]
-        entete = ['id','name','quantity','price']
-        writer = csv.DictWriter(open('listeDeProduits.csv', 'w', newline=''), fieldnames=entete)
-        writer.writeheader()
-        writer.writerows(productCatalog)
+        updateCSvFile('listeDeProduits.csv',['id','name','quantity','price'],productCatalog)
+
 
 def checkProduct(name: str):
     i=0
@@ -249,6 +236,7 @@ def checkProduct(name: str):
         #print("This product doesnot exist")
         return exist
 
+
 def getProductName(prompt):
     while True:
         name = input(prompt)
@@ -257,6 +245,7 @@ def getProductName(prompt):
             return productCatalog[int(i)]['name']
         else:
             print('Ce produit n\'existe pas.')
+
 
 def testProductName(prompt):
     while True:
@@ -277,6 +266,7 @@ def sortByExpense(client):
 def sortByPoint(client):
     return client.get('fidelityPoints')
 
+
 def getClientsList():
     #on lit le csv qui a la liste des client et leurs informations puis on ajoute au tableau
     with open('clients.csv') as csvFile:
@@ -287,6 +277,8 @@ def getClientsList():
             if lineCount == 0:
                 #print(f'Column names are: {", ".join(row)}')  
                 lineCount += 1  
+            elif row == '':
+                pass
             else:  
                 #print(f'id: {row[0]} name: {row[1]}, totalExpenses: {row[2]}, fidelityPoints: {row[3]}')  
                 currentClient = copy.deepcopy(clientsModel)  
@@ -301,7 +293,29 @@ def getClientsList():
         #print(f'Processed {lineCount} lines.')
         return clientsList
 
-clientsList = getClientsList()
+
+def reinitilizeSolde():
+    with open('clients.csv') as csvFile:
+        csvReader = csv.reader(csvFile, delimiter=',')  
+        rows = list(csvReader)
+        i=0
+        for row in rows:
+            if i == 0:
+                i += 1
+            else:
+                row[2]=0
+                row[3]=0
+                i+=1
+        writer = csv.writer(open('clients.csv', 'w', newline=""))
+        writer.writerows(rows)
+
+
+def reinitialiseSolde():
+    for row in clientsList:
+        row['totalExpenses'] = 0.0
+        row['fidelityPoints'] = 0
+    updateCSvFile('clients.csv',['id','name','totalExpenses','fidelityPoints','gains','bonAchat'],clientsList)
+    
 
 def bestClients(num):      
     #on utilise la fonction qui va trier les clients par ordre de dépenses
@@ -309,11 +323,6 @@ def bestClients(num):
     clientOrder = clientsList[:num]
     return clientOrder
 
-'''    #on liste les 10 meilleurs clients
-    print(f'Voici les 10 meilleurs sur le total de {lineCount-1} clients')
-    for client in clientOrder:
-        print (f'Nom : {client["name"]}, Total des dépenses : {client["totalExpenses"]}, Solde Points de fidélité : {client["fidelityPoints"]}')
-'''
 
 def findWinner():
     resultat = []
@@ -324,21 +333,12 @@ def findWinner():
     #on reinitialise la valeur des depenses totales de tous les clients
     return resultat
 
+
 def afficheListeClients(liste: list):
     print('Num\t|\t\tNom\t\t                Depenses Totales\t          Valeur Bon D\'achat')
     for client in liste:
         print(client['id'], '\t|', client['name'], ' \t\t\t                ', client['totalExpenses'], '\t\t          ', client['bonAchat'])
 
-'''    print("le gagnat du bon d'achat de 10 000F est...")
-    print("Loading...")
-    print("{} !".format(winner["name"]))
-
-    #identifier les 3 clients qui ont le plus de points de fidelité
-    clientOrder.sort(key=sortByPoint, reverse=True)
-    print(f'Voici les 03 meilleurs sur le total de {lineCount-1} clients')
-    for client in clientOrder[:3]:
-        print (f'Nom : {client["name"]}, Total des dépenses : {client["totalExpenses"]}, Solde Points de fidélité : {client["fidelityPoints"]}')
-'''
 # Prochaines fonctions ROche
 
 
@@ -534,6 +534,7 @@ def adminMenu():
             print("Loading...")
             input('... Pressez Entrer pour le découvrir...\n')
             afficheListeClients(gagnant)
+            reinitialiseSolde()
             addToLog('Admin','a tire au sort le gagnant de la semaine: '+str(gagnant))
             if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
                 break
@@ -543,20 +544,9 @@ def adminMenu():
 # Prochaine fonction d'interface Kévin
 
 # fin des fonctions de menu et début du processus d'exécution de l'application
-'''
-productCatalog = [{"id": 1, "name": "OchocoAuLait", "quantity": 10, "price": 50},
-                  {"id": 2, "name": "ParleG", "quantity": 10, "price": 50},
-                  {"id": 3, "name": "Naya", "quantity": 100, "price": 50},
-                  {"id": 4, "name": "Marie", "quantity": 100, "price": 50},
-                  {"id": 5, "name": "Cream", "quantity": 100, "price": 50}]
-id,name,quantity,price
-1,OchocoAuLait,10,50
-2,ParleG,10,50
-3,Naya,100,50
-4,Marie,100,50
-5,Cream,100,50
-'''
+
 productCatalog = productReadCsv()
+clientsList = getClientsList()
 
 while True:
     if roleSelectionMenu():

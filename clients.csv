@@ -1,6 +1,6 @@
 id,name,totalExpenses,fidelityPoints,gains,bonAchat
-1,destino,563000,0,0,0
-2,kevin,370500,0,0,0
-3,nathasha,790250,0,0,0
-4,roche,963000,0,0,0
-5,yolande,139600,0,0,0
+4,roche,963000.0,0,0,0
+3,nathasha,790250.0,0,0,0
+1,destino,563000.0,0,0,10000
+2,kevin,370500.0,0,0,0
+5,yolande,139600.0,0,0,0
