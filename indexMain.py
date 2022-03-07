@@ -231,6 +231,10 @@ def productDel(name):
     exist=checkProduct(name)
     if exist :
         del productCatalog[int(exist)]
+        entete = ['id','name','quantity','price']
+        writer = csv.DictWriter(open('listeDeProduits.csv', 'w', newline=''), fieldnames=entete)
+        writer.writeheader()
+        writer.writerows(productCatalog)
 
 def checkProduct(name: str):
     i=0
@@ -533,7 +537,7 @@ def adminMenu():
             addToLog('Admin','a tire au sort le gagnant de la semaine: '+str(gagnant))
             if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
                 break
-    afficheListeProduits(productCatalog)
+    #afficheListeProduits(productCatalog)
     print('\n\n Aurevoir!!! \n\n')
 
 # Prochaine fonction d'interface Kévin
