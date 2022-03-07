@@ -149,8 +149,27 @@ def verifyAdmin():
 def manageCsvFile():
     r = csv.reader(open('listeDeProduits.csv')) # Here your csv file
     lines = list(r)
-    print(lines)
-    return csv.writer(open('listeDeProduits.csv', 'w', newline=''))
+    #print(lines)
+    #return csv.writer(open('listeDeProduits.csv', 'w', newline=''))
+    return lines
+
+def productReadCsv():
+    resultat = []
+    newProductList=copy.deepcopy(productsModel)
+    lines=manageCsvFile()
+    for row in lines:
+        name=row[1]
+        if not name=="name":
+            id = int(row[0])
+            quantity=int(row[2])
+            price=float(row[3])
+            newProductList=copy.deepcopy(productsModel)
+            newProductList["id"]=id
+            newProductList["name"]=name
+            newProductList["quantity"]=quantity
+            newProductList["price"]=price
+            resultat.append(newProductList)
+    return resultat
 
 def productAdd(name,quantity,price):
     newProductList=copy.deepcopy(productsModel)
@@ -161,12 +180,21 @@ def productAdd(name,quantity,price):
     productCatalog.append(newProductList)
     return newProductList
 
+def productDel(name):
+    exist=checkProduct(name)
+    if exist :
+        del productCatalog[int(exist)]
+
 def productUpdateQuantity(name,quantity):
     exist=checkProduct(name)
     if exist:
         products=productCatalog[int(exist)]
         addToLog('Admin','a fait passe la quantite de '+str(name)+' de '+str(products['quantity'])+' à '+str(products['quantity'] + quantity))
         products['quantity']=products['quantity'] + quantity
+        entete = ['id','name','quantity','price']
+        writer = csv.DictWriter(open('listeDeProduits.csv', 'w', newline=''), fieldnames=entete)
+        writer.writeheader()
+        writer.writerows(productCatalog)
         return products
 
 def productUpdatePrice(name ,price):
@@ -175,8 +203,30 @@ def productUpdatePrice(name ,price):
         products=productCatalog[int(exist)]
         addToLog('Admin','a fait passé le prix de '+str(name)+' de '+str(products['price'])+' à '+str(products['price'] + price))
         products['price']=price
+        #writer = csv.writer(open('listeDeProduits.csv', 'w', newline=''))
+        #writer.writerows(productCatalog)
+        entete = ['id','name','quantity','price']
+        writer = csv.DictWriter(open('listeDeProduits.csv', 'w', newline=''), fieldnames=entete)
+        writer.writeheader()
+        writer.writerows(productCatalog)
+
         return products
-    
+'''
+def productUpdatePrice(name,price):
+    exist=checkProduct(name)
+    if exist:
+        products=productCatalog[int(exist)]
+        products['price']=price
+#pour modifier dans le fichier csv
+#update the values in csv file but check first if the product by name exist
+    exist=checkIfExistInCsv(name)
+    if exist :
+        lines=manageCsvFile()
+        lines[int(exist)][3]= price
+        # print(lines)
+        writer = csv.writer(open('listeDeProduits.csv', 'w', newline=''))
+        writer.writerows(lines) 
+'''   
 def productDel(name):
     exist=checkProduct(name)
     if exist :
@@ -417,8 +467,8 @@ def adminMenu():
                 break
         elif action == 2:
             i = 0
-            whatToModify = doubleChoice('Entrez 1 pour modifier la Quantité ou 2 pour modifier le prix: ', '1', '2', 'Saisie Incorrecte!!!')
-            if whatToModify:
+            whatToModify = tripleChoice('Entrez 1 pour modifier la Quantité ou 2 pour modifier le prix 0 pour supprimer: ', '1', '2','0', 'Saisie Incorrecte!!!')
+            if whatToModify == 1:
                 while True:
                     i += 1
                     produit = ['']
@@ -429,16 +479,25 @@ def adminMenu():
                     afficheListeProduits(produit)
                     if not input('\nEntrez 1 pour modifier un autre produit ou Autre chose pour sortir: ') == '1':
                         break
-            else:
+            elif whatToModify == 2:
                 while True:
                     i += 1
                     produit = ['']
-                    name = input('Entrez le nom du produit à modifier: ')
-                    price = inputTest('Definissez le nouveau prix du produit: ')
+                    name = getProductName('Entrez le nom du produit à modifier: ')
+                    price = inputTest('Definissez le nouveau prix du '+name+': ')
                     print('\nProduit modifié avec succes')
                     produit[0] = productUpdatePrice(name,price)
                     afficheListeProduits(produit)
                     if not input('\nEntrez 1 pour modifier un autre produit ou Autre chose pour sortir: ') == '1':
+                        break
+            else:
+                while True:
+                    i += 1
+                    produit = ['']
+                    name = getProductName('Entrez le nom du produit à modifier: ')
+                    productDel(name)
+                    print('\n',name,'Supprimé avec succes')
+                    if not input('\nEntrez 1 pour Supprimer un autre produit ou Autre chose pour sortir: ') == '1':
                         break
             print('\n',i,'Produit(s) modifié(s).')
             if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
@@ -474,18 +533,26 @@ def adminMenu():
             addToLog('Admin','a tire au sort le gagnant de la semaine: '+str(gagnant))
             if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
                 break
-    # afficheListeProduits(productCatalog)
+    afficheListeProduits(productCatalog)
     print('\n\n Aurevoir!!! \n\n')
 
 # Prochaine fonction d'interface Kévin
 
 # fin des fonctions de menu et début du processus d'exécution de l'application
-
+'''
 productCatalog = [{"id": 1, "name": "OchocoAuLait", "quantity": 10, "price": 50},
                   {"id": 2, "name": "ParleG", "quantity": 10, "price": 50},
                   {"id": 3, "name": "Naya", "quantity": 100, "price": 50},
                   {"id": 4, "name": "Marie", "quantity": 100, "price": 50},
                   {"id": 5, "name": "Cream", "quantity": 100, "price": 50}]
+id,name,quantity,price
+1,OchocoAuLait,10,50
+2,ParleG,10,50
+3,Naya,100,50
+4,Marie,100,50
+5,Cream,100,50
+'''
+productCatalog = productReadCsv()
 
 while True:
     if roleSelectionMenu():
