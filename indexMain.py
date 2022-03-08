@@ -1,6 +1,9 @@
 import copy
+import datetime
 import csv
+import random
 
+LOGFILE = 'marketLog.log'
 # J'ai importé copy à l'avance
 # Début du programme. C'est à partir d'ici qu'on écrira le code
 
@@ -18,13 +21,12 @@ clientsModel = {
     "name": "",
     "totalExpenses": 0.0,
     "fidelityPoints": 0,
-    "won": 0.0
+    "won": 0.0,
+    "bonAchat": 0.0
 }
 
 # puis on crée la liste catalogue et une liste vierge de clients
 productCatalog = []
-clientsList = []
-
 
 # Vous pouvez écrire vos fonctions à partir d'ici Merci d'écrire de façon propre et de commenter vos codes Une ligne
 # d'espace entre les blocs de code et deux entre les grands blocs de code Une ligne d'espace avant les commentaires
@@ -91,7 +93,7 @@ def fouthChoice(proposal, choice1, choice2, choice3, choice4, invalidInputStatem
         elif choice == choice3:
             return 3
             break
-        elif choice == choice3:
+        elif choice == choice4:
             return 0
             break
         else:
@@ -121,10 +123,20 @@ def floatInputTest(proposal):
 
 
 # Fonction de Kévin pour afficher la liste des produits du catalogue non csv
+
+#fonction qui retourne la liste des produits dont le stock est inférieur à la limite indiquée
+def lowProductList(limit):
+    resultat = []
+    for product in productCatalog:
+        if product["quantity"] < limit:
+            resultat.append(product)
+    return resultat
+
+
 def afficheListeProduits(liste: list):
-    print('Num\t|\tNom\t      Quantite\t          PrixU')
+    print('Num\t|\tNom\t\t\t      \tQuantite\t           Prix Unitaire')
     for produit in liste:
-        print(produit['id'], '\t|', produit['name'], ' \t      ', produit['quantity'], '\t          ', produit['price'])
+        print(produit['id'], '\t|', produit['name'], ' \t\t\t\t', produit['quantity'], '\t\t            ', produit['price'])
 
 
 # Les 3 prochaines fonctions sont réalisée par natacha pour permettre à un client d'effectuer un achat
@@ -379,10 +391,237 @@ def couldIBuyList(name):
 
 # Prochaines fonctions Roche
 
+def addToLog(actor,libele):
+    #on ouvre le fichier en mode d'ajout 
+    date = datetime.datetime.now()
+    logContent = ''
+    logContent += date.strftime('%A')+' '+ str(date.day) +'-'+str(date.month)+'-'+str(date.year) +' a '+str(date.hour)+':'+str(date.minute) +' '+actor +' '+libele
+    logFile = open(LOGFILE,'a')
+    logFile.write(logContent +'\n')
+    logFile.close()
+
+
+def verifyAdmin():
+    while True:
+        test = input('Entrez Votre mot de passe ou 0 pour le menu précédent: ')
+        if test == 'Bonjour':
+            return True
+        elif test == '0':
+            return False
+        else:
+            print('Mot de passe incorrect!')
+
+
+def manageCsvFile():
+    r = csv.reader(open('listeDeProduits.csv')) # Here your csv file
+    lines = list(r)
+    return lines
+
+
+def productReadCsv():
+    resultat = []
+    newProductList=copy.deepcopy(productsModel)
+    lines=manageCsvFile()
+    for row in lines:
+        if row == '':
+            continue
+        name=row[1]
+        if not name=="name":
+            id = int(row[0])
+            quantity=int(row[2])
+            price=float(row[3])
+            newProductList=copy.deepcopy(productsModel)
+            newProductList["id"]=id
+            newProductList["name"]=name
+            newProductList["quantity"]=quantity
+            newProductList["price"]=price
+            resultat.append(newProductList)
+    return resultat
+
+
+def productAdd(name,quantity,price):
+    newProductList=copy.deepcopy(productsModel)
+    newProductList["name"]=name
+    newProductList["quantity"]=quantity
+    newProductList["price"]=price
+    newProductList["id"]=len(productCatalog)
+    productCatalog.append(newProductList)
+    updateCSvFile('listeDeProduits.csv',['id','name','quantity','price'],productCatalog)
+    return newProductList
+
+#met a jour un fichier csv à partir des parametres
+ #name correspond au nom du fichier csv a modifier
+ #head correspond a la premiere ligne du fichier csv, la ligne des entêtes
+ #content est un tableau d'objets correspondant au contenu du fichier
+ #exemple d'utilisation   updateCSvFile('listeDeProduits.csv',['id','name','quantity','price'],productCatalog)
+def updateCSvFile(name: str,head: list,content: list):
+    entete = head
+    writer = csv.DictWriter(open(name, 'w', newline=''), fieldnames=entete)
+    writer.writeheader()
+    writer.writerows(content)
+
+
+def productUpdateQuantity(name,quantity):
+    exist=checkProduct(name)
+    if exist:
+        products=productCatalog[int(exist)]
+        addToLog('Admin','a fait passe la quantité de '+str(name)+' de '+str(products['quantity'])+' à '+str(products['quantity'] + quantity))
+        products['quantity']=products['quantity'] + quantity
+        updateCSvFile('listeDeProduits.csv',['id','name','quantity','price'],productCatalog)
+        return products
+
+
+def productUpdatePrice(name ,price):
+    exist=checkProduct(name)
+    if exist:
+        products=productCatalog[int(exist)]
+        addToLog('Admin','a fait passé le prix de '+str(name)+' de '+str(products['price'])+' à '+str(products['price'] + price))
+        products['price']=price
+        updateCSvFile('listeDeProduits.csv',['id','name','quantity','price'],productCatalog)
+        return products
+
+
+def productDel(name):
+    exist=checkProduct(name)
+    if exist :
+        del productCatalog[int(exist)]
+        updateCSvFile('listeDeProduits.csv',['id','name','quantity','price'],productCatalog)
+
+
+def checkProduct(name: str):
+    i=0
+    exist=False
+    for products in productCatalog:
+        if name.casefold()==str(products['name']).casefold():
+            exist=True
+            return str(i)
+        i+=1
+
+    if not exist:
+        #print("This product does not exist")
+        return exist
+
+
+def getProductName(prompt):
+    while True:
+        name = input(prompt)
+        i = checkProduct(name)
+        if i:
+            return productCatalog[int(i)]['name']
+        else:
+            print('Ce produit n\'existe pas.')
+
+
+def testProductName(prompt):
+    while True:
+        name = input(prompt)
+        i = checkProduct(name)
+        if not i:
+            return name
+        else:
+            print('Ce produit existe déjà vous ne pouvez plus l\'ajouter')
+
+
+#fonction pour identifier le gagnant de la semaine
+#une fonction qui trie les clients par ordre décroissant des dépenses
+def sortByExpense(client):
+    return client.get('totalExpenses')
+
+#fonction qui trie les clients
+def sortByPoint(client):
+    return client.get('fidelityPoints')
+
+
+def getClientsList():
+    #on lit le csv qui a la liste des client et leurs informations puis on ajoute au tableau
+    with open('clients.csv') as csvFile:
+        csvReader = csv.reader(csvFile, delimiter=',')  
+        lineCount = 0  
+        clientsList = []
+        for row in csvReader:
+            if lineCount == 0:
+                #print(f'Column names are: {", ".join(row)}')  
+                lineCount += 1  
+            elif row == '':
+                pass
+            else:  
+                #print(f'id: {row[0]} name: {row[1]}, totalExpenses: {row[2]}, fidelityPoints: {row[3]}')  
+                currentClient = copy.deepcopy(clientsModel)  
+                currentClient["id"] = int(row[0])  
+                currentClient["name"] = row[1]  
+                currentClient["totalExpenses"] = float(row[2])  
+                currentClient["fidelityPoints"] = int(row[3])   
+                currentClient["gains"] = int(row[4])   
+                currentClient["bonAchat"] = int(row[5])   
+                clientsList.append(currentClient)  
+                lineCount += 1  
+        #print(f'Processed {lineCount} lines.')
+        return clientsList
+
+
+def reinitilizeSolde():
+    with open('clients.csv') as csvFile:
+        csvReader = csv.reader(csvFile, delimiter=',')  
+        rows = list(csvReader)
+        i=0
+        for row in rows:
+            if i == 0:
+                i += 1
+            else:
+                row[2]=0
+                row[3]=0
+                i+=1
+        writer = csv.writer(open('clients.csv', 'w', newline=""))
+        writer.writerows(rows)
+
+
+def reinitialiseSolde():
+    for row in clientsList:
+        row['totalExpenses'] = 0.0
+        row['fidelityPoints'] = 0
+    updateCSvFile('clients.csv',['id','name','totalExpenses','fidelityPoints','gains','bonAchat'],clientsList)
+    
+
+def bestClients(num):      
+    #on utilise la fonction qui va trier les clients par ordre de dépenses
+    clientsList.sort(key=sortByExpense, reverse=True)
+    clientOrder = clientsList[:num]
+    return clientOrder
+
+
+def findWinner():
+    resultat = []
+    #le vainqueur est choisi aléatoirement parmi les 10
+    winner = random.choice(bestClients(10))
+    winner['bonAchat'] = 10000
+    resultat.append(winner)
+    #on reinitialise la valeur des depenses totales de tous les clients
+    return resultat
+
+
+def afficheListeClients(liste: list):
+    print('Num\t|\t\tNom\t\t                Depenses Totales\t          Valeur Bon D\'achat')
+    for client in liste:
+        print(client['id'], '\t|', client['name'], ' \t\t\t                ', client['totalExpenses'], '\t\t          ', client['bonAchat'])
+
+# Prochaines fonctions Roche
 
 # Kévin stp ajoute tes fonctions à intégrer à partir d'ici
 
-# ---- Ici -------
+# Kevin Task : Une alerte sera remontée lorsque le stock d’un produit sera inférieur à 20
+# l'idée ici est de presenter a l'administrateur la liste des produits dont le stock est bas, lorsqu'il se connecte
+def alerteStock():
+    resultat = []
+
+    #recuperons les produits dont le stock est bas dans la liste
+    for produit in productCatalog:
+        if produit['quantity'] < 20:
+            resultat.append(produit)
+    #affichons ces produits s'il y'en a
+    if resultat != []:
+        print('\n Alerte! Ces produits ont atteint le stock critique: \n')
+        afficheListeProduits(resultat)
+        input('\nAppuyez sur Entrer pour continuer: ')
 
 # Prochaines fonctions Kévin
 
@@ -416,7 +655,12 @@ def roleSelectionMenu():
     elif relay == 1:
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Debut du code Kévin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-        print("Kévin appelle ses fonctions ici")
+        if verifyAdmin():
+            adminMenu()
+            return True
+        else:
+            roleSelectionMenu()
+            return False
 
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Fin du code de Kévin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
@@ -522,17 +766,122 @@ def outGoingMenu():
 
 # Kévin stp ajoute tes fonctions d'interface à partir d'ici
 
-# ---- Ici -------
+# Menu d'administration
+def displayAdminMenu():
+    print('''\tEntrez le nombre correspondant à l'action choisie.
+            1- Ajouter des produits au catalogue
+            2- Modifier les produits disponibles
+            3- Voir la liste des produits dont le stock a une limite
+            4- Identifier les 3 mailleurs clients
+            5- Tirer au sort le gagnant de la semaine    
+            0- Revenir au menu precedent ''')
+
+    return intInputTest('Faites votre choix: ')
+
+def adminMenu():
+
+    alerteStock()
+
+    print('\n\tBienvenue sur la plateforme d\'Administration.')
+    while True:
+        action = displayAdminMenu()        
+        if action == 0:
+            roleSelectionMenu()
+        elif action == 1:
+            i = 0
+            while True:
+                i += 1
+                produit = ['']
+                name = testProductName('Definir le nom du produit: ')
+                qtity = intInputTest('Definir la quantité: ')
+                price = floatInputTest('Definir le prix: ')
+                print('\nProduit ajoute avec succes')
+                produit[0] = productAdd(name,qtity,price)
+                afficheListeProduits(produit)
+                addToLog('Admin','a ajoute le produit '+str(produit))
+                if not input('Entrez 1 pour ajouter un autre produit ou Autre chose pour sortir: ') == '1':
+                    break
+            print('\n',i,'Produit(s) Ajoute(s) au catalogue.')
+            if input('Entrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
+                break
+        elif action == 2:
+            i = 0
+            whatToModify = tripleChoice('Entrez 1 pour modifier la Quantité ou 2 pour modifier le prix 0 pour supprimer: ', '1', '2','0', 'Saisie Incorrecte!!!')
+            if whatToModify == 1:
+                while True:
+                    i += 1
+                    produit = ['']
+                    name = getProductName('Entrez le nom du produit à modifier: ')
+                    qtity = intInputTest('\nEntrez la quantité positive à ajouter(5) ou negative à retirer(-5): ')
+                    print('\nProduit modifié avec succes')
+                    produit[0] = productUpdateQuantity(name,qtity)
+                    afficheListeProduits(produit)
+                    if not input('\nEntrez 1 pour modifier un autre produit ou Autre chose pour sortir: ') == '1':
+                        break
+            elif whatToModify == 2:
+                while True:
+                    i += 1
+                    produit = ['']
+                    name = getProductName('Entrez le nom du produit à modifier: ')
+                    price = floatInputTest('Definissez le nouveau prix du '+name+': ')
+                    print('\nProduit modifié avec succes')
+                    produit[0] = productUpdatePrice(name,price)
+                    afficheListeProduits(produit)
+                    if not input('\nEntrez 1 pour modifier un autre produit ou Autre chose pour sortir: ') == '1':
+                        break
+            else:
+                while True:
+                    i += 1
+                    produit = ['']
+                    name = getProductName('Entrez le nom du produit à modifier: ')
+                    productDel(name)
+                    print('\n',name,'Supprimé avec succes')
+                    if not input('\nEntrez 1 pour Supprimer un autre produit ou Autre chose pour sortir: ') == '1':
+                        break
+            print('\n',i,'Produit(s) modifié(s).')
+            if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
+                break
+        elif action == 3:
+            while True:
+                limit = intInputTest('Veuillez entrer la limite à controler')
+                liste = lowProductList(limit)
+                if len(liste) == 0:
+                    print('il n\'y a pas de produit dont le stock est inferieur à ',limit,'\n')
+                else:
+                    print('le stock de ces produits est inferieur à ',limit,':')
+                    afficheListeProduits(liste)
+                    addToLog('Admin','a consulte la liste des produits dont le stock est inferieur a '+str(limit))
+                if not input('Entrez 1 pour effectuer un autre contrôle ou Autre chose pour sortir: ') == '1':
+                    break
+            print('\n','Control de stock Terminé.')
+            if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
+                break
+        elif action == 4:
+            taille = len(clientsList)
+            print('\nles 3 meilleurs clients sur',taille,'sont:')
+            afficheListeClients(bestClients(3))
+            addToLog('Admin','a consulte la liste des 3 meilleurs clients sur '+str(taille))
+            if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
+                break
+        elif action == 5:
+            gagnant = findWinner()
+            print("Le gagnat du bon d'achat de 10 000F est...")
+            print("Loading...")
+            input('... Pressez Entrer pour le découvrir...\n')
+            afficheListeClients(gagnant)
+            reinitialiseSolde()
+            addToLog('Admin','a tire au sort le gagnant de la semaine: '+str(gagnant))
+            if input('\nEntrez 0 pour Quitter ou autre chose pour revenir au menu precedent: ') == '0':
+                break
+    #afficheListeProduits(productCatalog)
+    print('\n\n Aurevoir!!! \n\n')
 
 # Prochaine fonction d'interface Kévin
 
 # fin des fonctions de menu et début du processus d'exécution de l'application
 
-productCatalog = [{"id": 1, "name": "OchocoAuLait", "quantity": 10, "price": 50},
-                  {"id": 2, "name": "ParleG", "quantity": 10, "price": 50},
-                  {"id": 3, "name": "Naya", "quantity": 100, "price": 50},
-                  {"id": 4, "name": "Marie", "quantity": 100, "price": 50},
-                  {"id": 5, "name": "Cream", "quantity": 100, "price": 50}]
+productCatalog = productReadCsv()
+clientsList = getClientsList()
 
 clientsList = [
     {"id": 1, "name": "nat", "totalExpenses": 0, "fidelityPoints": 10, "won": 1000.0}
@@ -540,11 +889,13 @@ clientsList = [
 
 #addClient("roche")
 
-roleSelectionMenu()
+#roleSelectionMenu()
 
 #addClient("roche")
 #addClient("Audrey")
 #addClient("Audrey")
+
+adminMenu()
 
 #promotionalMenu()
 
@@ -557,3 +908,7 @@ roleSelectionMenu()
 #print(clientsList)
 
 # print(inputTest("Veuillez fournir un nombre à vérifier svp !!"))
+
+'''while True:
+    if roleSelectionMenu():
+        break'''
