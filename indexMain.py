@@ -2,6 +2,7 @@ import copy
 import datetime
 import csv
 import random
+import os
 
 LOGFILE = 'marketLog.log'
 # J'ai importé copy à l'avance
@@ -223,9 +224,11 @@ def currentBuy(name):
 
     while True:
         print("")
-        print("liste les produits:")
+        print("liste des produits:")
+        print("------------------")
         print("")
         afficheListeProduits(productCatalog)
+        print("")
         print("")
 
         for client in clientsList:
@@ -236,6 +239,7 @@ def currentBuy(name):
         # On récupère les valeurs à envoyer en paramètre à la fonction d'achat
         print("")
         print("'{}' - Total Points : {} - Total Gain : {}".format(name, points, wonValue))
+        print("")
         choice = input("veuillez indiquer le produit souhaité: -> ")
         quantity = intInputTest("combien voulez-vous de {} ?:".format(choice))  # on vérifie le type de la qté
 
@@ -257,6 +261,7 @@ def currentBuy(name):
         if not continuer:
             fidelity = pointsCount(totalAchat)
             print("Dépenses totales : {}    |    Points de fidélité gagnés : {}".format(totalAchat, fidelity))
+            print("")
 
             # Puis on ajoute le montant total des achats au client
             for client in clientsList:
@@ -278,9 +283,11 @@ def currentBuyWithPoints(name):
 
     while True:
         print("")
-        print("liste les produits:")
+        print("liste des produits:")
+        print("------------------")
         print("")
         couldIBuyList(name)
+        print("")
         print("")
 
         for client in clientsList:
@@ -289,7 +296,9 @@ def currentBuyWithPoints(name):
                 wonValue = client["won"]
 
         # On récupère les valeurs à envoyer en paramètre à la fonction d'achat
+        print("")
         print("'{}' - Total Points : {} - Total Gain : {}".format(name, points, wonValue))
+        print("")
         choice = input("veuillez indiquer le produit souhaité: -> ")
         quantity = intInputTest("combien voulez-vous de {} ?:".format(choice))  # on vérifie le type de la qté
 
@@ -300,6 +309,7 @@ def currentBuyWithPoints(name):
             print("")
         else:
             print("désolé vous avez sélectionné un produit qui n'existe pas !")
+            print("")
             prix = 0
             print("")
 
@@ -315,7 +325,7 @@ def currentBuyWithPoints(name):
                                            "0", "Veuillez entrer un choix valide SVP !")
 
         if not continuer:
-            print("Achats effectués !")
+            print("Achats effectués, Merci !!")
             print("")
 
             break
@@ -399,12 +409,14 @@ def couldIBuyList(name):
     cheap = 1
 
     print("voici les produits que vous pouvez acheter actuellement avec vos points :")
+    print("------------------------------------------------------------------------")
     print("")
     for product in productCatalog:
         if product["price"] <= montant or product["price"] <= gains:
             print("{}. {} -> prix: {}; quantité restante: {}".format(cheap, product["name"], product["price"],
                                                                      product["quantity"]))
             cheap += 1
+    print("")
 
     return montant
 
@@ -664,16 +676,31 @@ def alerteStock():
 # Cette fonction affiche le menu du choix entre admin et client et est la première fonction appelée. Penser à lui donner
 # un choix d'arrêt pour quitter le programme
 def roleSelectionMenu():
+    os.system("cls")
     print("")
-    print("Bienvenue sur notre plateforme d'achat")
+    print(" ----------------------------------------------------------------------------------------------------------")
+    print("|                                BIENVENUE SUR NOTRE PLATEFORME D'ACHAT                                    |")
+    print(" ----------------------------------------------------------------------------------------------------------")
     print("")
-    print("Administrateur ? - Tapez 1          |          Client ? - Tapez 2          |          Quitter ? - Tapez 0")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("  Administrateur ? - Tapez 1          |          Client ? - Tapez 2          |          Quitter ? - Tapez 0")
+    print("")
+    print("")
+    print("")
+    print("")
     print("")
     print("")
 
     # Ici on commence à écrire en fonction du retour de la fonction role.
     # Par exemple je gère les clients donc dès que la role retourne false, j'écris mon code
-    relay = tripleChoice("Veuillez entrer votre choix", "1", "2", "0", "Saisie invalide !")
+    relay = tripleChoice("  Veuillez entrer votre choix", "1", "2", "0", "Saisie invalide !")
+    print("")
 
     if relay == 2:
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Début du code de roche >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -701,19 +728,28 @@ def roleSelectionMenu():
 
 # Cette fonction affiche le catalogue et le menu d'accueil de client
 def clientsMenu():
+    os.system("cls")
     print("")
-    print("BIENVENUE AU SUPER MARCHE SPAR")
+    print(" ----------------------------------------------------------------------------------------------------------")
+    print("|                                    BIENVENUE AU SUPER MARCHE SPAR                                        |")
+    print(" ----------------------------------------------------------------------------------------------------------")
+    print("")
+    print("")
+    print("")
     print("voici ci-dessous notre catalogue de produits :")
-    print()
-
+    print("")
     afficheListeProduits(productCatalog)
+    print("")
+    print("")
+    print("")
+
+    print("|---- Promotion actuellement en cours, retrouvez les détails dans la section 'Consulter votre solde de points' ----|")
 
     print("")
-    print(
-        "|----- une promotion est actuellement en cours, retrouvez les détails dans la section 'Consulter votre solde de points' -----|")
-
+    print("")
     print("")
     print("Veuillez choisir une action à effectuer !")
+    print("")
     clientSelect = tripleChoice("Faire un achat ? - Tapez '1'    |    Consulter votre solde de points ? - Tapez '2'  "
                                 "  |    Quitter ? - Tapez '0'", "1", "2", "0", "Veuillez faire un choix valide SVP"
                                                                                " !!")
@@ -729,11 +765,15 @@ def clientsMenu():
 
 
 def buyingMenu():
+    os.system("cls")
     print("")
     name = clientIdentification("vous êtes sur le point de faire un achat")
 
     while True:
-        print("|------------------------------ MENU D'ACHATS ------------------------------|")
+        print(" ----------------------------------------------------------------------------------------------------------")
+        print("|                                             MENU D'ACHATS                                                |")
+        print(" ----------------------------------------------------------------------------------------------------------")
+        print("")
 
         currentBuy(name)
 
@@ -745,12 +785,16 @@ def buyingMenu():
 
 
 def promotionalMenu():
+    os.system("cls")
     # le client devra déjà être dans la liste des clients
     print("")
     name = clientIdentification("Nous allons consulter votre solde de points")
 
     while True:
-        print("|---------------------------- MENU PROMOTIONNEL ----------------------------|")
+        print(" ----------------------------------------------------------------------------------------------------------")
+        print("|                                           MENU PROMOTIONNEL                                              |")
+        print(" ----------------------------------------------------------------------------------------------------------")
+        print("")
         print("")
 
         for client in clientsList:
@@ -767,10 +811,12 @@ def promotionalMenu():
             print("faites des achats ordinaires pour gagner des points à convertir !")
 
         print("")
+        print("")
         print("Durant la promotion, vos achats vous rapporteront des points de fidélité")
         print(
             "et chaque semaines vous serez tiré au sors pour gagner un bon d'achat de 10 000 sur la base de vos achats.")
 
+        print("")
         print("")
         print("Client id : {} - Nom : {} - Total Points : {} - Total Gain : {}".format(id, name, points, wonValue))
 
@@ -791,6 +837,7 @@ def promotionalMenu():
 
 
 def outGoingMenu():
+    os.system("cls")
     print("")
     print("Merci d'avoir utilisé nos services. à la revoillure !!")
 

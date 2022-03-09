@@ -21,3 +21,12 @@ Monday 7-3-2022 a 17:26 Admin a tire au sort le gagnant de la semaine: [{'id': 1
 Monday 7-3-2022 a 17:30 Admin a tire au sort le gagnant de la semaine: [{'id': 1, 'name': 'destino', 'totalExpenses': 0.0, 'fidelityPoints': 0, 'gains': 0, 'bonAchat': 10000}]
 Monday 7-3-2022 a 17:58 Admin a tire au sort le gagnant de la semaine: [{'id': 1, 'name': 'destino', 'totalExpenses': 0.0, 'fidelityPoints': 0, 'gains': 0, 'bonAchat': 10000}]
 Tuesday 8-3-2022 a 11:56 Admin a ajoute le produit [{'id': 5, 'name': 'Risoteau', 'quantity': 50, 'price': 200.0}]
+Wednesday 9-3-2022 a 9:58 Admin a ajoute le produit [{'id': 6, 'name': 'Chill', 'quantity': 24, 'price': 500.0}]
+Wednesday 9-3-2022 a 9:59 Admin a fait passé le prix de Chill de 500.0 à 1050.0
+Wednesday 9-3-2022 a 10:0 Admin a ajoute le produit [{'id': 7, 'name': 'Harricot', 'quantity': 600, 'price': 250.0}]
+Wednesday 9-3-2022 a 10:1 Admin a consulte la liste des produits dont le stock est inferieur a 100
+Wednesday 9-3-2022 a 10:2 Admin a consulte la liste des 3 meilleurs clients sur 2
+Wednesday 9-3-2022 a 10:3 Admin a tire au sort le gagnant de la semaine: [{'id': 2, 'name': 'ibiki', 'totalExpenses': 0.0, 'fidelityPoints': 0, 'won': 10000.0, 'bonAchat': 1}]
+Wednesday 9-3-2022 a 10:3 Admin a consulte la liste des produits dont le stock est inferieur a 10
+Wednesday 9-3-2022 a 10:50 Admin a ajoute le produit [{'id': 5, 'name': 'Chill', 'quantity': 24, 'price': 500.0}]
+Wednesday 9-3-2022 a 10:59 Admin a consulte la liste des 3 meilleurs clients sur 7
