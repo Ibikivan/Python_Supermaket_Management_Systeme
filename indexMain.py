@@ -144,7 +144,7 @@ def afficheListeProduits(liste: list):
 
 # Les 3 prochaines fonctions sont réalisée par natacha pour permettre à un client d'effectuer un achat
 # Fonction qui effectue l'achat proprement dit et de soustraire la quantité achetée au catalogue et retourne le prix tle
-def buyProduct(produitChoice, quantity, totalAchat):
+def buyProduct(produitChoice, quantity, totalAchat, name):
     for produit in productCatalog:
         if produitChoice.casefold() == produit["name"].casefold():
             if produit["quantity"] >= quantity:
@@ -153,6 +153,7 @@ def buyProduct(produitChoice, quantity, totalAchat):
                 print("achat confirmé de {} {} à un prix total de {}".format(quantity, produit["name"], total))
                 print("Totaux achats en cours {}. Atteignez 1000 Fr pour gagner 1 point! ;-)".format(totalAchat))
                 updateCSvFile('listeDeProduits.csv', ['id', 'name', 'quantity', 'price'], productCatalog)
+                addToLog(name, 'a acheté {} {} à {} Fcfa'.format(quantity, produit["name"], total)) #structure comprise
                 return total
 
             else:
@@ -160,7 +161,7 @@ def buyProduct(produitChoice, quantity, totalAchat):
                 if userTotalInterrogation("Modifier vos quantités ? - Tapez 'Entrer'   |   Annuler l'achat ? Tapez '0'",
                                           "0", "Erreur de saisie, veuillez réessayer !"):
                     newQuantity = int(input("Entrer la nouvelle valeur -> "))
-                    total = buyProduct(produitChoice, newQuantity, totalAchat)
+                    total = buyProduct(produitChoice, newQuantity, totalAchat, name)
                     return total
 
                 else:
@@ -184,6 +185,7 @@ def buyProductWithPoints(choice, quantity, name):
                     produit["quantity"] -= quantity
                     print("achat confirmé de {} {} à un prix total de {}".format(quantity, produit["name"], total))
                     updateCSvFile('listeDeProduits.csv', ['id', 'name', 'quantity', 'price'], productCatalog)
+                    addToLog(name, 'a acheté {} {} à {} Fcfa'.format(quantity, produit["name"], total))
                     return total
 
                 else:
@@ -204,7 +206,7 @@ def buyProductWithPoints(choice, quantity, name):
                 if userTotalInterrogation("Modifier vos quantités ? - Tapez 'Entrer'   |   Annuler l'achat ? Tapez '0'",
                                           "0", "Erreur de saisie, veuillez réessayer !"):
                     newQuantity = intInputTest("Entrer la nouvelle valeur".format(choice))
-                    total = buyProduct(choice, newQuantity)
+                    total = buyProduct(choice, newQuantity, name)
                     return total
 
                 else:
@@ -221,6 +223,8 @@ def pointsCount(currentExpenses):
 # Cette fonction réalise invite le client à réaliser l'achat et exécute toute la procédure
 def currentBuy(name):
     totalAchat = 0
+    points = 0
+    wonValue = 0
 
     while True:
         print("")
@@ -240,20 +244,31 @@ def currentBuy(name):
         print("")
         print("'{}' - Total Points : {} - Total Gain : {}".format(name, points, wonValue))
         print("")
+
+        prodChoice = True
+
         choice = input("veuillez indiquer le produit souhaité: -> ")
-        quantity = intInputTest("combien voulez-vous de {} ?:".format(choice))  # on vérifie le type de la qté
 
-        print("")
-        prix = buyProduct(choice, quantity,
-                          totalAchat)  # on appelle la fonction d'achat et on récupère le montant total des achats
-        if prix:  # penser à vérifier les quantités en stock avant l'achat
-            print("")
-        else:
-            print("désolé vous avez sélectionné un produit qui n'existe pas !")
-            print("")
-            prix = 0
+        for product in productCatalog:
 
-        totalAchat += prix
+            if choice.casefold() == product["name"].casefold():
+                quantity = intInputTest("combien voulez-vous de {} ?:".format(choice))  # on vérifie le type de la qté
+
+                print("")
+                prix = buyProduct(choice, quantity, totalAchat, name)  # on appelle la fonction d'achat et on récupère le montant total des achats
+                if prix:  # penser à vérifier les quantités en stock avant l'achat
+                    print("")
+                else:
+                    print("Désolé vous avez sélectionné un produit qui n'existe pas !")
+                    print("")
+                    prix = 0
+
+                totalAchat += prix
+                prodChoice = False
+
+        if prodChoice:
+            print("Désolé vous avez sélectionné un produit qui n'existe pas !")
+            print("")
 
         continuer = userTotalInterrogation("Acheter autre chose ? - Tapez Entrer    |    Tapez '0' pour Arrêter",
                                            "0", "Veuillez entrer un choix valide SVP !")
@@ -280,6 +295,8 @@ def currentBuy(name):
 
 def currentBuyWithPoints(name):
     totalAchat = 0
+    points = 0
+    wonValue = 0
 
     while True:
         print("")
@@ -300,27 +317,36 @@ def currentBuyWithPoints(name):
         print("'{}' - Total Points : {} - Total Gain : {}".format(name, points, wonValue))
         print("")
         choice = input("veuillez indiquer le produit souhaité: -> ")
-        quantity = intInputTest("combien voulez-vous de {} ?:".format(choice))  # on vérifie le type de la qté
 
-        print("")
-        prix = buyProductWithPoints(choice, quantity,
-                                    name)  # on appelle la fonction d'achat et on récupère le montant total des achats
-        if prix:  # penser à vérifier les quantités en stock avant l'achat
+        prodChoice = True
+
+        for product in productCatalog:
+            if choice.casefold() == product["name"].casefold():
+                quantity = intInputTest("combien voulez-vous de {} ?:".format(choice))  # on vérifie le type de la qté
+
+                print("")
+                prix = buyProductWithPoints(choice, quantity, name)  # on appelle la fonction d'achat et on récupère le montant total des achats
+                if prix:  # penser à vérifier les quantités en stock avant l'achat
+                    print("")
+                else:
+                    print("désolé vous avez sélectionné un produit qui n'existe pas !")
+                    print("")
+                    prix = 0
+                    print("")
+
+                # Et on retire le montant total des achats effectués aux gains totaux du client
+                for client in clientsList:
+                    if client["name"] == name:
+                        client["won"] -= prix
+
+                updateCSvFile('clients.csv', ['id', 'name', 'totalExpenses', 'fidelityPoints', 'won', 'bonAchat'], clientsList)
+                totalAchat += prix
+                prodChoice = False
+
+        if prodChoice:
+            print("Désolé vous avez sélectionné un produit qui n'existe pas !")
             print("")
-        else:
-            print("désolé vous avez sélectionné un produit qui n'existe pas !")
-            print("")
-            prix = 0
-            print("")
 
-        # Et on retire le montant total des achats effectués aux gains totaux du client
-        for client in clientsList:
-            if client["name"] == name:
-                client["won"] -= prix
-
-        updateCSvFile('clients.csv', ['id', 'name', 'totalExpenses', 'fidelityPoints', 'won', 'bonAchat'], clientsList)
-
-        totalAchat += prix
         continuer = userTotalInterrogation("Acheter autre chose ? - Tapez Entrer    |    Tapez '0' pour Arrêter",
                                            "0", "Veuillez entrer un choix valide SVP !")
 
@@ -343,28 +369,34 @@ def isHeExist(name):
 def clientIdentification(idPurpose):
     print("{}, veuillez vous identifier svp !!".format(idPurpose))
     name = input("Quel est votre nom ? -> ")
-    addClient(name)
-    return name
+
+    if isHeExist(name):
+        print("")
+        print("Merci Mr/Mme {}, Content de vous retrouver".format(name))
+        print("")
+        return name
+
+    else:
+        print("")
+        print("{} n'existe pas, veuillez choisir une action".format(name))
+        print("")
+
+        if userTotalInterrogation("Vous ajouter ? - Tapez 'ENTRER'    |    Annuler ? - Tapez '0'", "0", "Erreur de saisie, veuillez réessayer !"):
+            addClient(name)
+            return name
 
 
 # Cette fonction va vérifier l'existence d'un client et l'ajouter s'il n'existe pas
 def addClient(name):
-    if not isHeExist(name):
-
-        currentClient = copy.deepcopy(clientsModel)
-        currentClient["id"] = currentClient["id"] = len(clientsList) + 1
-        currentClient["name"] = name
-        clientsList.append(currentClient)
-        updateCSvFile('clients.csv', ['id', 'name', 'totalExpenses', 'fidelityPoints', 'won', 'bonAchat'], clientsList)
-        print("")
-        print("Merci Mr/Mme {}, vous avez êtes ajouté à notre liste de clients !".format(name))
-        print("")
-        return True
-
-    else:
-        print("")
-        print("Merci Mr/Mme {}, Content de vous retrouver".format(name))
-        print("")
+    currentClient = copy.deepcopy(clientsModel)
+    currentClient["id"] = currentClient["id"] = len(clientsList) + 1
+    currentClient["name"] = name
+    clientsList.append(currentClient)
+    updateCSvFile('clients.csv', ['id', 'name', 'totalExpenses', 'fidelityPoints', 'won', 'bonAchat'], clientsList)
+    print("")
+    print("Merci Mr/Mme {}, vous avez êtes ajouté à notre liste de clients !".format(name))
+    print("")
+    return True
 
 
 # Maintenant je crée ma fonction qui va m'indiquer les produit achetables avec mes points
@@ -395,10 +427,17 @@ def convertPointToWon(name):
                 print("Désolé Mr/Mme {}, aucun point à convertir. Effectuez des achats normaux pour en gagner.".format(
                     name))
                 print("")
+                if userTotalInterrogation("Aller au menu d'Achats ? - Tapez 'ENTRER'    |    Changer de compte ? - Tapez '0'", "0", "Erreur de saisie, réesayez SVP !"):
+                    clientsMenu()
+                else:
+                    promotionalMenu()
 
 
 def couldIBuyList(name):
     # On récupère les points du client
+    points = 0
+    gains = 0
+
     for client in clientsList:
         if client["name"] == name:
             points = client["fidelityPoints"]
@@ -751,7 +790,7 @@ def clientsMenu():
     print("Veuillez choisir une action à effectuer !")
     print("")
     clientSelect = tripleChoice("Faire un achat ? - Tapez '1'    |    Consulter votre solde de points ? - Tapez '2'  "
-                                "  |    Quitter ? - Tapez '0'", "1", "2", "0", "Veuillez faire un choix valide SVP"
+                                "  |    Retour ? - Tapez '0'", "1", "2", "0", "Veuillez faire un choix valide SVP"
                                                                                " !!")
 
     # Après avoir appelé la fonction 'tripleChoice pour permettre à l'utilisateur de faire un choix, j'utilise le
@@ -768,6 +807,10 @@ def buyingMenu():
     os.system("cls")
     print("")
     name = clientIdentification("vous êtes sur le point de faire un achat")
+    if name:
+        pass
+    else:
+        clientsMenu()
 
     while True:
         print(" ----------------------------------------------------------------------------------------------------------")
@@ -777,7 +820,7 @@ def buyingMenu():
 
         currentBuy(name)
 
-        relay = userTotalInterrogation("Tapez Entrer pour revenir au MENU CLIENTS    |    Tapez '1' pour acheter "
+        relay = userTotalInterrogation("Tapez 'ENTRER' pour revenir au MENU CLIENTS    |    Tapez '1' pour acheter "
                                        "de nouveau", "1", "Erreur de saisie, veuillez recommencer !")
         if relay:
             clientsMenu()
@@ -787,8 +830,16 @@ def buyingMenu():
 def promotionalMenu():
     os.system("cls")
     # le client devra déjà être dans la liste des clients
+    wonValue = 0
+    id = 0
+    points = 0
+
     print("")
     name = clientIdentification("Nous allons consulter votre solde de points")
+    if name:
+        pass
+    else:
+        clientsMenu()
 
     while True:
         print(" ----------------------------------------------------------------------------------------------------------")
